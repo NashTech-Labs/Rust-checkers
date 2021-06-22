@@ -15,7 +15,7 @@ I am using -
   ```
 - Copy the compiled wasm module to demo folder where our JS and html files are located.
   ```
-  cp target/wasm32-unknown-unknown/release/rustycheckers.wasm demo/
+  cp target/wasm32-unknown-unknown/release/rust_checkers.wasm demo/
   ```
 ## Run the project
 
