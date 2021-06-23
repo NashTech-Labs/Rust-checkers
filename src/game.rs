@@ -12,6 +12,11 @@ pub struct MoveResult {
 }
 
 impl GameEngine {
+    /// new method creates a new instance of GameEngine with default values.
+    ///
+    /// #Return
+    ///
+    /// Returns the instance of type GameEngine.
     pub fn new() -> GameEngine {
         let mut engine = GameEngine {
             board: [[None; 8]; 8],
@@ -22,6 +27,7 @@ impl GameEngine {
         engine
     }
 
+    /// initialize_pieces method initialises the pieces on the board.
     pub fn initialize_pieces(&mut self) {
         [1, 3, 5, 7, 0, 2, 4, 6, 1, 3, 5, 7]
             .iter()
@@ -40,6 +46,15 @@ impl GameEngine {
             });
     }
 
+    /// move_piece method make the move desired by user.
+    ///
+    /// #Arguments
+    ///
+    /// move_desired - a reference of type Move which holds the move to be made.
+    ///
+    /// #Return
+    ///
+    /// Returns the instance of type MoveResult denoting the result.
     pub fn move_piece(&mut self, move_desired: &Move) -> Result<MoveResult, ()> {
         let legal_moves = self.legal_moves();
 
@@ -55,7 +70,7 @@ impl GameEngine {
             self.board[x][y] = None; // remove the jumped piece
         }
 
-        // Move piece from source to dest
+        // Move piece from source to destination
         self.board[to_x][to_y] = Some(piece);
         self.board[from_x][from_y] = None;
 
@@ -73,6 +88,15 @@ impl GameEngine {
         })
     }
 
+    /// get_piece method gives the piece from a given location on the board.
+    ///
+    /// #Arguments
+    ///
+    /// coord - a object of type Coordinate denoting the location to be fetched.
+    ///
+    /// #Return
+    ///
+    /// Returns the Result type value containing the GamePiece wrapped in Option enum.
     pub fn get_piece(&self, coord: Coordinate) -> Result<Option<GamePiece>, ()> {
         let Coordinate(coord_x, coord_y) = coord;
         if coord_x <= 7 && coord_y <= 7 {
@@ -82,10 +106,16 @@ impl GameEngine {
         }
     }
 
+    /// current_turn method tells the player who has current turn.
+    ///
+    /// #Return
+    ///
+    /// Returns an PieceColor enum containing the color of current player's pieces.
     pub fn current_turn(&self) -> PieceColor {
         self.current_turn
     }
 
+    /// advance_turn method toggles the current turn of players.
     fn advance_turn(&mut self) {
         if self.current_turn == PieceColor::Black {
             self.current_turn = PieceColor::White
@@ -95,13 +125,32 @@ impl GameEngine {
         self.move_count += 1;
     }
 
-    // Black pieces in row 0 or White pieces in row 7 are crowned
+    /// should_crown method checks if the piece should crown or not.
+    ///
+    /// #Arguments
+    ///
+    /// piece - A GamePiece type object that is to be checked.
+    /// coord - A Coordinate type object specifying the location of piece.
+    ///
+    /// #Return
+    ///
+    /// Returns bool value denoting if the piece should crown.
     fn should_crown(&self, piece: GamePiece, coord: Coordinate) -> bool {
         let Coordinate(_coord_x, coord_y) = coord;
 
-        (coord_y == 0 && piece.color == PieceColor::Black) || (coord_y == 7 && piece.color == PieceColor::White)
+        (coord_y == 0 && piece.color == PieceColor::Black)
+            || (coord_y == 7 && piece.color == PieceColor::White)
     }
 
+    /// crown_piece method crowns a given piece on the board.
+    ///
+    /// #Arguments
+    ///
+    /// coord - A Coordinate type object denoting the location whose piece id to be crowned.
+    ///
+    /// #Return
+    ///
+    /// Returns a bool value telling if the piece is crowned succesfully.
     fn crown_piece(&mut self, coord: Coordinate) -> bool {
         let Coordinate(coord_x, coord_y) = coord;
         if let Some(piece) = self.board[coord_x][coord_y] {
@@ -112,6 +161,15 @@ impl GameEngine {
         }
     }
 
+    /// is_crowned method checks if the piece is crowned or not.
+    ///
+    /// #Arguments
+    ///
+    /// coord - A Coordinate type object denoting location of piece to be checked.
+    ///
+    /// #Return
+    ///
+    /// Returns a bool value denoting if the piece is crowned or not.
     pub fn is_crowned(&self, coord: Coordinate) -> bool {
         let Coordinate(coord_x, coord_y) = coord;
         match self.board[coord_x][coord_y] {
@@ -120,10 +178,20 @@ impl GameEngine {
         }
     }
 
+    /// move_count method tells the number of moves made.
+    ///
+    /// #Return
+    ///
+    /// Returns an u32 value denoting the count of moves.
     pub fn move_count(&self) -> u32 {
         self.move_count
     }
 
+    /// legal_moves method gives all the legal moves for all locations on the board.
+    ///
+    /// #Return
+    ///
+    /// Returns vector containing the legal moves.
     fn legal_moves(&self) -> Vec<Move> {
         let mut moves: Vec<Move> = Vec::new();
         for col in 0..8 {
@@ -141,6 +209,15 @@ impl GameEngine {
         moves
     }
 
+    /// valid_moves_from method gives all the valid moves from a particular location on the board.
+    ///
+    /// #Arguments
+    ///
+    /// loc - A Coordinate type object denoting location of piece whose valid moves are desired.
+    ///
+    /// #Return
+    ///
+    /// Returns the vector of valid moves.
     fn valid_moves_from(&self, loc: Coordinate) -> Vec<Move> {
         let Coordinate(x, y) = loc;
         if let Some(piece) = self.board[x][y] {
@@ -167,6 +244,18 @@ impl GameEngine {
         }
     }
 
+    /// midpiece_coordinate method gives the location of piece in between the jump.
+    ///
+    /// #Arguments
+    ///
+    /// from_x - an usize parameter for x coordinate of starting location.
+    /// from_y - an usize parameter for y coordinate of starting location.
+    /// to_x - an usize parameter for x coordinate of final location.
+    /// to_y - an usize parameter for y coordinate of final location.
+    ///
+    /// #Return
+    ///
+    /// Returns the Coordinate of mid piece wrapped in Option.
     fn midpiece_coordinate(
         &self,
         from_x: usize,
@@ -187,13 +276,42 @@ impl GameEngine {
         }
     }
 
-    fn midpiece(&self, from_x: usize, from_y: usize, to_x: usize, to_y: usize) -> Option<GamePiece> {
+    /// midpiece method gives the piece in between the jump.
+    ///
+    /// #Arguments
+    ///
+    /// from_x - an usize parameter for x coordinate of starting location.
+    /// from_y - an usize parameter for y coordinate of starting location.
+    /// to_x - an usize parameter for x coordinate of final location.
+    /// to_y - an usize parameter for y coordinate of final location.
+    ///
+    /// #Return
+    ///
+    /// Returns the GamePiece in middle wrapped in Option.
+    fn midpiece(
+        &self,
+        from_x: usize,
+        from_y: usize,
+        to_x: usize,
+        to_y: usize,
+    ) -> Option<GamePiece> {
         match self.midpiece_coordinate(from_x, from_y, to_x, to_y) {
             Some(Coordinate(coord_x, coord_y)) => self.board[coord_x][coord_y],
             None => None,
         }
     }
 
+    /// valid_jump method check if the jump is valid from a location on board to other.
+    ///
+    /// #Arguments
+    ///
+    /// moving_piece - A GamePiece type reference for the Piece making the jump.
+    /// from - A Coordinate type reference denoting starting location.
+    /// to - A Coordinate type reference denoting final location.
+    ///
+    /// #Return
+    ///
+    /// Returns a bool value telling if the jump is valid.
     fn valid_jump(&self, moving_piece: &GamePiece, from: &Coordinate, to: &Coordinate) -> bool {
         if !to.on_board() || !from.on_board() {
             false
@@ -209,6 +327,17 @@ impl GameEngine {
         }
     }
 
+    /// valid_move method check if the move is valid from a location on board to other.
+    ///
+    /// #Arguments
+    ///
+    /// moving_piece - A GamePiece type reference for the Piece making the move.
+    /// from - A Coordinate type reference denoting starting location.
+    /// to - A Coordinate type reference denoting final location.
+    ///
+    /// #Return
+    ///
+    /// Returns a bool value telling if the move is valid.
     fn valid_move(&self, moving_piece: &GamePiece, from: &Coordinate, to: &Coordinate) -> bool {
         if !to.on_board() || !from.on_board() {
             false
@@ -249,17 +378,39 @@ mod test {
     use super::GameEngine;
 
     #[test]
-    fn should_crown() {
+    fn should_crown_success() {
         let engine = GameEngine::new();
         let black = GamePiece::new(PieceColor::Black);
         let res = engine.should_crown(black, Coordinate(3, 0));
         assert!(res);
+    }
+
+    #[test]
+    fn should_crown_failure() {
+        let engine = GameEngine::new();
+        let black = GamePiece::new(PieceColor::Black);
         let res_no_crown = engine.should_crown(black, Coordinate(5, 2));
         assert_eq!(res_no_crown, false);
     }
 
     #[test]
-    fn mut_crown() {
+    fn crown_success() {
+        let mut engine = GameEngine::new();
+        engine.initialize_pieces();
+        let crowned = engine.crown_piece(Coordinate(1, 0));
+        assert!(crowned);
+    }
+
+    #[test]
+    fn crown_failure() {
+        let mut engine = GameEngine::new();
+        engine.initialize_pieces();
+        let crowned = engine.crown_piece(Coordinate(2, 0));
+        assert_eq!(crowned, false);
+    }
+
+    #[test]
+    fn is_crown_success() {
         let mut engine = GameEngine::new();
         engine.initialize_pieces();
         let crowned = engine.crown_piece(Coordinate(1, 0));
@@ -268,48 +419,36 @@ mod test {
     }
 
     #[test]
+    fn is_crown_failure() {
+        let mut engine = GameEngine::new();
+        engine.initialize_pieces();
+        assert_eq!(engine.is_crowned(Coordinate(1, 0)), false);
+    }
+
+    #[test]
     fn advance_turn() {
         let mut engine = GameEngine::new();
         engine.advance_turn();
         assert_eq!(engine.current_turn(), PieceColor::White);
+    }
+
+    #[test]
+    fn move_count_success() {
+        let mut engine = GameEngine::new();
         engine.advance_turn();
-        assert_eq!(engine.current_turn(), PieceColor::Black);
+        engine.advance_turn();
         assert_eq!(engine.move_count(), 2);
     }
 
     #[test]
-    fn move_targets() {
-        let coord_1 = Coordinate(0, 5);
-        let targets = coord_1.move_targets_from().collect::<Vec<Coordinate>>();
+    fn move_targets_success() {
+        let coord = Coordinate(0, 5);
+        let targets = coord.move_targets_from().collect::<Vec<Coordinate>>();
         assert_eq!(targets, [Coordinate(1, 6), Coordinate(1, 4)]);
-
-        let coord_2 = Coordinate(1, 6);
-        let targets2 = coord_2.move_targets_from().collect::<Vec<Coordinate>>();
-        assert_eq!(
-            targets2,
-            [
-                Coordinate(0, 7),
-                Coordinate(2, 7),
-                Coordinate(2, 5),
-                Coordinate(0, 5)
-            ]
-        );
-
-        let coord_3 = Coordinate(2, 5);
-        let targets3 = coord_3.move_targets_from().collect::<Vec<Coordinate>>();
-        assert_eq!(
-            targets3,
-            [
-                Coordinate(1, 6),
-                Coordinate(3, 6),
-                Coordinate(3, 4),
-                Coordinate(1, 4)
-            ]
-        );
     }
 
     #[test]
-    fn valid_from() {
+    fn valid_from_success() {
         let coord_1 = Coordinate(0, 5);
         let coord_2 = Coordinate(2, 5);
 
@@ -340,7 +479,16 @@ mod test {
     }
 
     #[test]
-    fn legal_moves_black() {
+    fn valid_from_failure() {
+        let coord = Coordinate(1, 0);
+        let mut engine = GameEngine::new();
+        engine.initialize_pieces();
+        let move_res = engine.valid_moves_from(coord);
+        assert_eq!(move_res, vec![]);
+    }
+
+    #[test]
+    fn legal_moves_black_success() {
         let mut engine = GameEngine::new();
         engine.initialize_pieces();
         let moves = engine.legal_moves();
@@ -380,7 +528,7 @@ mod test {
     }
 
     #[test]
-    fn legal_moves_white() {
+    fn legal_moves_white_success() {
         let mut engine = GameEngine::new();
         engine.initialize_pieces();
         engine.advance_turn();
@@ -421,9 +569,9 @@ mod test {
     }
 
     #[test]
-    fn jump_targets() {
-        let coord_1 = Coordinate(3, 3);
-        let targets = coord_1.jump_targets_from().collect::<Vec<Coordinate>>();
+    fn jump_targets_success() {
+        let coord = Coordinate(3, 3);
+        let targets = coord.jump_targets_from().collect::<Vec<Coordinate>>();
         assert_eq!(
             targets,
             [
@@ -436,10 +584,10 @@ mod test {
     }
 
     #[test]
-    fn jump_moves_validation() {
+    fn jump_moves_validation_success() {
         let mut engine = GameEngine::new();
         engine.initialize_pieces();
-        engine.board[1][4] = Some(GamePiece::new(PieceColor::White)); // this should be jumpable from 0,5 to 2,3
+        engine.board[1][4] = Some(GamePiece::new(PieceColor::White));
         let moves = engine.legal_moves();
         assert_eq!(
             moves,
@@ -477,7 +625,7 @@ mod test {
     }
 
     #[test]
-    fn test_basic_move() {
+    fn test_basic_move_success() {
         let mut engine = GameEngine::new();
         engine.initialize_pieces();
         let res = engine.move_piece(&Move::new((0, 5), (1, 4)));

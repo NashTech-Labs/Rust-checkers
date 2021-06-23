@@ -11,6 +11,16 @@ pub struct GamePiece {
 }
 
 impl GamePiece {
+
+    /// new method creates a new instance of GamePiece.
+    ///
+    /// #Arguments
+    ///
+    /// color - a parameter of type PieceColor denoting color of piece.
+    ///
+    /// #Return
+    ///
+    /// Returns the instance of type GamePiece.
     pub fn new(color: PieceColor) -> GamePiece {
         GamePiece {
             color,
@@ -18,9 +28,18 @@ impl GamePiece {
         }
     }
 
-    pub fn crowned(p: GamePiece) -> GamePiece {
+    /// crowned method make a game piece crowned.
+    ///
+    /// #Arguments
+    ///
+    /// piece - A parameter of type GamePiece that is to be crowned.
+    ///
+    /// #Return
+    ///
+    /// Returns the GamePiece that is crowned.
+    pub fn crowned(piece: GamePiece) -> GamePiece {
         GamePiece {
-            color: p.color,
+            color: piece.color,
             crowned: true,
         }
     }
@@ -30,11 +49,22 @@ impl GamePiece {
 pub struct Coordinate(pub usize, pub usize);
 
 impl Coordinate {
+
+    /// on_board method checks if the piece is on the board.
+    ///
+    /// #Return
+    ///
+    /// Returns a bool value denoting if the piece is on the board.
     pub fn on_board(self) -> bool {
         let Coordinate(x_coord, y_coord) = self;
         x_coord <= 7 && y_coord <= 7
     }
 
+    /// jump_targets_from method gives all the location to which a jump can be made.
+    ///
+    /// #Return
+    ///
+    /// Returns the iterator over a vector containing Coordinate type objects denoting targets for jump.
     pub fn jump_targets_from(&self) -> impl Iterator<Item = Coordinate> {
         let mut jumps = Vec::new();
         let Coordinate(x_coord, y_coord) = *self;
@@ -52,6 +82,11 @@ impl Coordinate {
         jumps.into_iter()
     }
 
+    /// jump_targets_from method gives all the location to which a move can be made.
+    ///
+    /// #Return
+    ///
+    /// Returns the iterator over a vector containing Coordinate type objects denoting targets for the move.
     pub fn move_targets_from(&self) -> impl Iterator<Item = Coordinate> {
         let mut moves = Vec::new();
         let Coordinate(x_coord, y_coord) = *self;
@@ -76,6 +111,17 @@ pub struct Move {
 }
 
 impl Move {
+
+    /// new method creates a new instance of Move.
+    ///
+    /// #Arguments
+    ///
+    /// from - a tuple containing the starting coordinates.
+    /// to - a tuple containing the destination coordinates.
+    ///
+    /// #Return
+    ///
+    /// Returns the instance of type Move.
     pub fn new(from: (usize, usize), to: (usize, usize)) -> Move {
         Move {
             from: Coordinate(from.0, from.1),
